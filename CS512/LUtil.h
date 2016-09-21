@@ -7,6 +7,7 @@ and may not be redistributed without written permission.*/
 
 #include "LOpenGL.h"
 #include <stdio.h>
+#include <string>
 
 //Screen Constants
 const int SCREEN_WIDTH = 640;
@@ -27,6 +28,7 @@ Side Effects:
  -Matrix mode is set to modelview
  -Clear color is set to black
 */
+void loadModel(std::string);
 
 void update();
 /*

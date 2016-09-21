@@ -3,6 +3,7 @@ and may not be redistributed without written permission.*/
 //Version: 001
 #include "stdafx.h"
 #include "LUtil.h"
+#include <iostream>
 
 void runMainLoop( int val );
 /*
@@ -16,15 +17,19 @@ Side Effects:
 
 int main( int argc, char* args[] )
 {
+	std::cout << "Starting application" << std::endl;
 	//Initialize FreeGLUT
 	glutInit( &argc, args );
 
+	unsigned int screenWidth = 640;
+	unsigned int screenHeight = 480;
+	
 	//Create OpenGL 2.1 context
 	glutInitContextVersion( 2, 1 );
-
+	
 	//Create Double Buffered Window
 	glutInitDisplayMode( GLUT_DOUBLE );
-	glutInitWindowSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+	glutInitWindowSize( screenWidth, screenHeight);
 	glutCreateWindow( "OpenGL" );
 
 	//Do post window/context creation initialization
@@ -33,6 +38,8 @@ int main( int argc, char* args[] )
 		printf( "Unable to initialize graphics library!\n" );
 		return 1;
 	}
+
+	loadModel("models/bunny.obj");
 
 	//Set rendering function
 	glutDisplayFunc( render );
