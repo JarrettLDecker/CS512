@@ -38,29 +38,29 @@ bool initGL()
 
     return true;
 }
+	
+	/* 
+	Take in a pathname and replace verticies and faces
+	with data from model file.
+	*/
 
 void loadModel(std::string name) {
 
-	char character;
+	verticies.clear();
+	faces.clear();
+
+	char character[2];
 	FILE * pFile;
 	verticies.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 	pFile = fopen(name.c_str(), "r");
 	std::cout << "Opened file" << std::endl;
-	while (fscanf(pFile, "%s", &character)) {
-		if (feof(pFile) || (character != 'v' && character != 'f')) {
-			break;
-		}
-		if (character == 'v') {
-			glm::vec3 v(0.0f, 0.0f, 0.0f);
-			fscanf(pFile, " %f %f %f", &v.x, &v.y, &v.z);
-			verticies.push_back(v);
-		}
-		else {
-			glm::vec3 f(0, 0, 0);
-			fscanf(pFile, " %f %f %f", &f.x, &f.y, &f.z);
-			faces.push_back(f);
-		}
+	glm::vec3 v(0.0f, 0.0f, 0.0f);
+	while (fscanf(pFile, "%s %f %f %f", &character[0], &v.x, &v.y, &v.z)) {
+		if (feof(pFile) || (character[0] != 'v' && character[0] != 'f')) break;
+		if (character[0] == 'v') verticies.push_back(v);
+		else faces.push_back(v);
 	}
+	
 	fclose(pFile);
 	std::cout << "Closed file" << std::endl;
 	return;
