@@ -20,12 +20,17 @@ void loadModel(std::string);
 std::vector<glm::vec3> verticies;
 std::vector<glm::vec3> faces;
 
-glm::vec3 camPosition(5.0f, 0.0f, 0.0f);
-glm::vec3 camForward(-1.0f, 0.0f, 0.0f);
+glm::vec3 camPosition(0.0f, 0.0f, 4.0f);
+glm::vec3 camForward(0.0f, 0.0f, -1.0f);
 glm::vec3 camUp(0.0f, 1.0f, 0.0f);
-glm::vec3 camSide(0.0f, 0.0f, 1.0f);
 
 float red = 1, green = 1, blue = 1;
+
+float fov = 45.0;
+float nearClip = 0.1;
+float farClip = 10.0;
+
+bool clockwise = false;
 
 void translateCamera(glm::vec3 vec, float scale) {
 	camPosition = camPosition + (vec * scale);
@@ -39,21 +44,45 @@ glm::vec3 rotateVec3(glm::vec3 vec, glm::vec3 axis, float angle) {
 void rotateCamera(glm::vec3 axis, float angle) {
 	camForward = glm::normalize(rotateVec3(camForward, axis, angle));
 	camUp = glm::normalize(rotateVec3(camUp, axis, angle));
-	std::cout << "Rotated camera " << "camForward = " << camForward.x << "x " << camForward.y << "y " << camForward.z << "z CamUp = "
+	std::cout << "Rotated camera " << "camForward = " << camForward.x << "x " << camForward.y << "y " << camForward.z << "z camUp = "
 		 << camUp.x << "x " << camUp.y << "y " << camUp.z << "z" << std::endl;
 }
 
 float changeColor(float color, float value) {
 	float ret = color + value;
-	if (ret < 0) return 0;
-	if (ret > 1) return 1;
+	if (ret < 0) ret = 0;
+	if (ret > 1) ret = 1;
 	return ret;
 }
 
 void resetCamera() {
-	camPosition = glm::vec3(5, 0, 0);
-	camForward = glm::vec3(-1, 0, 0);
+	camPosition = glm::vec3(0, 0, 4);
+	camForward = glm::vec3(0, 0, -1);
 	camUp = glm::vec3(0, 1, 0);
+	fov = 60.0;
+	nearClip = 0.1;
+	farClip = 10.0;
+}
+
+void changeClockwise() {
+	if (clockwise) glFrontFace(GL_CCW);
+	else glFrontFace(GL_CW);
+	clockwise = !clockwise;
+}
+
+void changeNear(float value) {
+	nearClip += value;
+	std::cout << "near changed by " << value << " nearClip = " << nearClip << std::endl;
+}
+
+void changeFar(float value) {
+	farClip += value;
+	std::cout << "far changed by " << value << " farClip = " << farClip << std::endl;
+}
+
+void changeFov(float value) {
+	fov += value;
+	std::cout << "fov changed by " << value << " fov = " << fov << std::endl;
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -90,6 +119,18 @@ void keyboard(unsigned char key, int x, int y)
 	else if (key == 'f') glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	else if (key == 'e') resetCamera();
+
+	else if (key == 'c') changeClockwise();
+
+	//near
+	else if (key == '-') changeNear(0.1);
+	else if (key == '_') changeNear(-0.1);
+	//far
+	else if (key == '=') changeFar(0.1);
+	else if (key == '+') changeFar(-0.1);
+	//fov
+	else if (key == '[') changeFov(1);
+	else if (key == ']') changeFov(-1);
 }
 
 void loadModel(std::string name) {
@@ -119,19 +160,20 @@ void display() {
 	//glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60, 1, 0.01, 100);
+	gluPerspective(fov, 1.0f, nearClip, farClip);
 	gluLookAt(camPosition.x, camPosition.y, camPosition.z,
 		camPosition.x + camForward.x, camPosition.y + camForward.y, camPosition.z + camForward.z,
 		camUp.x, camUp.y, camUp.z);
 	glColor3f(red, green, blue);
 
+	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < faces.size(); i++) {
-		glBegin(GL_TRIANGLES);
 		glVertex3f(verticies[faces[i].x].x, verticies[faces[i].x].y, verticies[faces[i].x].z);
 		glVertex3f(verticies[faces[i].y].x, verticies[faces[i].y].y, verticies[faces[i].y].z);
 		glVertex3f(verticies[faces[i].z].x, verticies[faces[i].z].y, verticies[faces[i].z].z);
-		glEnd();
 	}
+	glEnd();
+
 	glFlush();
 	glutSwapBuffers();
 }
@@ -143,7 +185,7 @@ void spinCube() {
 void myReshape(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, 1.0f, 0.1f, 10.0f);
+	gluPerspective(fov, 1.0f, nearClip, farClip);
 	glMatrixMode(GL_MODELVIEW);
 }
 
