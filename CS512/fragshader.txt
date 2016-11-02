@@ -1,0 +1,9 @@
+#version 330 core
+
+uniform float colorVec[3];
+out vec4 color;
+
+void main()
+{	
+	color = vec4(colorVec[0] , colorVec[1], colorVec[2], 1.0);
+}
